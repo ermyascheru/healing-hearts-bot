@@ -1,5 +1,8 @@
-TOKEN = "8950389024:AAHMn5mAn9552uh5-qGypboJ0Y6myvCYHAU"
+import os
+from dotenv import load_dotenv
 
-CHANNEL_USERNAME = "@HealingHeartsET"   # Your channel username
+load_dotenv()
 
-ADMIN_ID = 7140419465                # Your Telegram ID
+TOKEN = os.getenv("TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
+CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME")
