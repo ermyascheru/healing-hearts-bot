@@ -34,27 +34,20 @@ def run_web():
 # Telegram bot
 # -----------------------------
 def run_bot():
-    print("Starting Telegram bot...")
-
-    if not TOKEN:
-        raise ValueError("TOKEN environment variable is missing!")
+    print("Bot thread started")
 
     app = ApplicationBuilder().token(TOKEN).build()
 
-    app.add_handler(start_handler)
-    app.add_handler(stories_handler)
-    app.add_handler(admin_handler)
-    app.add_handler(reaction_handler)
-    app.add_handler(comment_handler)
-    app.add_handler(profile_handler)
+    from telegram.ext import CommandHandler
 
-    print("❤️ Healing Hearts Bot is running...")
+    async def ping(update, context):
+        await update.message.reply_text("Bot is alive!")
 
-    app.run_polling(
-        drop_pending_updates=True,
-        allowed_updates=None,
-    )
+    app.add_handler(CommandHandler("start", ping))
 
+    print("Starting polling...")
+
+    app.run_polling()
 
 def main():
     flask_thread = threading.Thread(target=run_web, daemon=True)
