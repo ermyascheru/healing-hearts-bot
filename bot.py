@@ -36,17 +36,17 @@ def run_web():
 def run_bot():
     print("Bot thread started")
 
+    if not TOKEN:
+        print("❌ TOKEN is missing")
+        return
+
+    print("TOKEN loaded")
+
     app = ApplicationBuilder().token(TOKEN).build()
 
-    from telegram.ext import CommandHandler
-
-    async def ping(update, context):
-        await update.message.reply_text("Bot is alive!")
-
-    app.add_handler(CommandHandler("start", ping))
+    print("Application built")
 
     print("Starting polling...")
-
     app.run_polling()
 
 def main():
