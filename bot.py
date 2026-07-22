@@ -1,6 +1,12 @@
+import os
+import threading
+
+from flask import Flask
 from telegram.ext import ApplicationBuilder
+
 from config import TOKEN
 
+# Import handlers
 from handlers.start import start_handler
 from handlers.stories import stories_handler
 from handlers.admin import admin_handler
@@ -8,11 +14,10 @@ from handlers.reactions import reaction_handler
 from handlers.comments import comment_handler
 from handlers.profile import profile_handler
 
-from flask import Flask
-import threading
 
-
-# Flask server for Render Web Service
+# -----------------------------
+# Flask app (keeps Render happy)
+# -----------------------------
 web_app = Flask(__name__)
 
 @web_app.route("/")
@@ -21,14 +26,21 @@ def home():
 
 
 def run_web():
-    web_app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host="0.0.0.0", port=port)
 
 
+# -----------------------------
+# Telegram bot
+# -----------------------------
 def run_bot():
-    # Create the bot application
+    print("Starting Telegram bot...")
+
+    if not TOKEN:
+        raise ValueError("TOKEN environment variable is missing!")
+
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Register handlers
     app.add_handler(start_handler)
     app.add_handler(stories_handler)
     app.add_handler(admin_handler)
@@ -38,15 +50,16 @@ def run_bot():
 
     print("❤️ Healing Hearts Bot is running...")
 
-    # Start Telegram polling
-    app.run_polling()
+    app.run_polling(
+        drop_pending_updates=True,
+        allowed_updates=None,
+    )
 
 
 def main():
-    # Start Flask in background thread
-    threading.Thread(target=run_web).start()
+    flask_thread = threading.Thread(target=run_web, daemon=True)
+    flask_thread.start()
 
-    # Start Telegram bot
     run_bot()
 
 
